@@ -1,0 +1,32 @@
+{:edge.kick/config
+ {:kick.builder/target #profile {:dev "target/dev"
+                                 :prod "target/prod"}
+  :kick/figwheel-main {:builds [{:id "app"
+                                 :main bontu.tube.frontend.main
+                                 :output-to "public/frontend.js"
+                                 :output-dir "public/frontend.out"
+                                 :asset-path "/frontend.out"
+                                 :optimizations #profile {:dev :none
+                                                          :prod :advanced}}]
+                       :figwheel-config
+                       {:ring-server-options
+                        {:port 5800}}}}
+
+ :ig.system/base
+ {:bontu.tube.foo/string "Hello, tube!"
+  [:edge.yada.ig/classpath-name :bontu.tube/index] {:name "index.html"}
+  [:edge.yada.ig/resources :bontu.tube/assets] {:path "public"}
+  :edge.yada.ig/listener {:handler #ig/ref :edge.bidi.ig/vhost
+                          :port 2000}
+  :edge.bidi.ig/vhost [["http://localhost:2000"
+                        [""
+                         [["/" #ig/ref [:bontu.tube/index :edge.yada.ig/classpath-name]]
+                          ["/hello" #ig/ref :bontu.tube.foo/string]
+                          ["" #ig/ref [:bontu.tube/assets :edge.yada.ig/resources]]]]]]}
+
+ :ig.system/dev
+ {:edge.kick/builder #ref [:edge.kick/config]}
+
+ :ig/system #profile {:dev #merge [#ref [:ig.system/base]
+                                   #ref [:ig.system/dev]]
+                      :default #ref [:ig.system/base]}}
